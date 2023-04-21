@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sample code: https://github.com/optapy/optapy/commit/f5c4b014cb65c5aa8be2e385539932f7e711ac85#diff-50259f9c9b47d72157bd9276fb8ebbba12a1e848f08d86f8778408728e16d9ba-->
+<!-- Schema: https://www.optaplanner.org/xsd/solver -->
+<solver xmlns="https://www.optaplanner.org/xsd/solver"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://www.optaplanner.org/xsd/solver https://www.optaplanner.org/xsd/solver/solver.xsd">
+    <environmentMode>FAST_ASSERT</environmentMode>
+
+    <!-- Define the model -->
+    <solutionClass>scheduling_domain.PlanState</solutionClass>
+    <entityClass>scheduling_domain.ToolNeed</entityClass>
+
+    <!-- Define the score function -->
+    <scoreDirectorFactory>
+        <constraintProviderClass>scheduling_constraints.tool_constraints</constraintProviderClass>
+        <constraintStreamImplType>BAVET</constraintStreamImplType>
+    </scoreDirectorFactory>
+
+    <!-- Configure the optimization algorithms (optional) -->
+    <termination>
+        <terminationCompositionStyle>OR</terminationCompositionStyle>
+        <secondsSpentLimit>30</secondsSpentLimit>
+        <unimprovedSecondsSpentLimit>5</unimprovedSecondsSpentLimit>
+        <bestScoreLimit>0hard/0soft</bestScoreLimit>
+    </termination>
+    <!--
+        In order to use certain construction heuristics, we need to add "planning entity difficulty"
+        https://www.optaplanner.org/docs/optaplanner/latest/planner-configuration/planner-configuration.html#planningEntityDifficulty
+        and/or "planning value strength"
+        https://www.optaplanner.org/docs/optaplanner/latest/planner-configuration/planner-configuration.html#planningValueStrength
+        BUT NEITHER OF THESE ARE SUPPORTED YET IN OPTAPY
+    -->
+
+    <constructionHeuristic>
+        <entitySorterManner>NONE</entitySorterManner>
+        <valueSorterManner>NONE</valueSorterManner>
+        <queuedEntityPlacer>
+            <entitySelector id="jobAEntitySelector">
+                <entityClass>scheduling_domain.ToolNeed</entityClass>
+                <cacheType>PHASE</cacheType>
+            </entitySelector>
+            <changeMoveSelector>
+                <entitySelector mimicSelectorRef="jobAEntitySelector"/>
+            </changeMoveSelector>
+        </queuedEntityPlacer>
+    </constructionHeuristic>
+    <localSearch>
+        <localSearchType>TABU_SEARCH</localSearchType>
+    </localSearch>
+</solver>
